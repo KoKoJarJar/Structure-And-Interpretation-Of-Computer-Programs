@@ -175,8 +175,8 @@ def permutations(seq):
     >>> sorted(permutations("ab"))
     [['a', 'b'], ['b', 'a']]
     """
-    if not seq or len(seq) == 1:
-        yield [x for x in seq]
+    if not seq:
+        yield []
     else:
         for perm in permutations(seq[1:]):
             for i in range(len(perm) + 1):
