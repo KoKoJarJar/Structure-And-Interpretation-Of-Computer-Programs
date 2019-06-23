@@ -10,8 +10,270 @@
 ;;; *** Add your own tests here! ***
 ;;; ********************************
 ; BEGIN PROBLEM 0
-'replace-this-line
-; END PROBLEM 0
+
+(+)
+; expect 0
+
+(*)
+; expect 1
+
+(+ 2)
+;expect 2
+
+(-)
+; expect Error
+
+(/)
+; expect Error
+
+(/ 2)
+; expect 0.5
+
+(- 5)
+; expect -5
+
+(+ 1 2 3)
+; expect 6
+
+(- 7 6 5 4)
+; expect -8
+
+(/ 16 2 2 2)
+; expect 2
+
+(* 1 2 3 4)
+; expect 24
+
+(even? 1 2 3)
+; expect Error
+
+(even? 98)
+; expect #t
+
+(list 1 2 3)
+; expect (1 2 3)
+
+(list)
+; expect ()
+
+(car (list 1 2 3))
+; expect 1
+
+(cdr (list 1 2 3))
+; expect (2 3)
+
+(cons 1 nil)
+; expect (1)
+
+(cons 2 (cons 3 nil))
+; expect (2 3)
+
+(cons)
+; expect Error
+
+(cons (/ 3 3) (cons 2 nil))
+; expect (1 2)
+
+(list (+) (*) (/ 2))
+; expect (0 1 0.5)
+
+(define x 0)
+; expect x
+
+((define x (+ x 1)) 2)
+; expect Error
+
+x
+; expect 1
+
+(+ (define x 2))
+; expect Error
+
+(2 (define x (+ x 1)))
+; expect Error
+
+x
+; expect 2
+
+(define x 2 y 4)
+; expect Error
+
+x
+; expect 2
+
+y
+; expect Error
+
+(define x 2 3)
+; expect Error
+
+(define x (+ x 1))
+; expect x
+
+x
+; expect 3
+
+'hello
+; expect hello
+
+'(1 . 2)
+; expect (1 . 2)
+
+'(1 (2 three . (4 . 5)))
+; expect (1 (2 three 4 . 5))
+
+(car '(a b))
+; expect a
+
+(eval (cons 'car '('(1 2))))
+; expect 1
+
+`(1 , (+ 1 1) 3)
+; expect (1 2 3)
+
+(quote a)
+; expect a
+
+(quote (1 . 2))
+; expect (1 . 2)
+
+(quote (1 (2 three . (4 . 5))))
+; expect (1 (2 three 4 . 5))
+
+'(+ 3 4 5)
+; expect (+ 3 4 5)
+
+'(+ 1 ())
+; expect (+ 1 ())
+
+`(+ ,(cons 1 2) 3)
+; expect (+ (1 . 2) 3)
+
+(lambda ())
+; expect Error
+
+(lambda () (+ x y))
+; expect (lambda () (+ x y))
+
+(define (2 3 x) (+ 2 3))
+; expect Error
+
+(define (x 2 3) (+ 2 3))
+; expect Error
+
+(define (f x y) (* x y))
+; expect f
+
+(define (make-adder x)
+  (lambda (y) (+ x y)))
+; expect make-adder
+
+((make-adder 3) 2)
+; expect 5
+
+((make-adder 2) 5)
+; expect 7
+
+((make-adder 1) 1)
+; expect 2
+
+(and)
+; expect #t
+
+(or)
+; expect #f
+
+(and 1 2 3)
+; expect 3
+
+(or 1 2 3)
+; expect 1
+
+(and 1 0 2)
+; expect 2
+
+(or 0 1 2)
+; expect 0
+
+(and 0 1 2 #f 3)
+; expect #f
+
+(or #f 1 2 #f 3)
+; expect 1
+
+(or #f #f #f)
+; expect #f
+
+(define x 1)
+; expect x
+
+(and (define x (+ x 1)) (define x (+ x 1)) (define x (+ x 1)))
+; expect x
+
+x
+; expect 4
+
+(and (define x (+ x 1)) #f (define x (+ x 1)))
+; expect #f
+
+x
+; expect 5
+
+(or #f #f (define x (+ x 1)) (define x (+ x 1)))
+; expect x
+
+x
+; expect 6
+
+(cond)
+; expect
+
+(cond ())
+; expect Error
+
+(cond (#f #t)
+      (else #t)
+      (#t #t))
+; expect Error
+
+(cond (+ x 1))
+; expect 1
+
+(cond ((+ x 1)))
+; expect 7
+
+(cond ((eq? 2 1) 3)
+      ((eq? 1 2) 4)
+      ((eq? 2 2) 8)
+      (else 9))
+; expect 8
+
+(let)
+; expect Error
+
+(let ())
+; expect Error
+
+(let ((x (define x 2)) (x (define x 3))) x)
+; expect Error
+
+x
+; expect 3
+
+(define x 5)
+(define y 'bye)
+(let ((x 42) (y (* x 10))) (list x y))
+; expect (42 50)
+
+(let ((x 42) (y 3 4)) (+ x 1))
+; expect Error
+
+(define y 2)
+(define f (mu () (* x y)))
+(define g (lambda () (define x 6) (define b 5) (f)))
+(g)
+; expect 12
+                                        ; END PROBLEM 0
 
 ;;; These are examples from several sections of "The Structure
 ;;; and Interpretation of Computer Programs" by Abelson and Sussman.

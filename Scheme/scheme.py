@@ -50,15 +50,18 @@ def scheme_apply(procedure, args, env):
         return procedure.apply(args, env)
     else:
         new_env = procedure.make_call_frame(args, env)
-        return eval_all(procedure.body, new_env)
+        return eval_all(procedure.body, new_env, True)
 
-def eval_all(expressions, env):
+def eval_all(expressions, env, opt=False):
     """Evaluate each expression in the Scheme list EXPRESSIONS in
     environment ENV and return the value of the last."""
     # BEGIN PROBLEM 8
     result = None
+    tail = False
     while expressions is not nil:
-        result = scheme_eval(expressions.first, env)
+        if expressions.second is nil and opt:
+            tail = True
+        result = scheme_eval(expressions.first, env, tail)
         expressions = expressions.second
     return result
     # END PROBLEM 8
@@ -92,7 +95,7 @@ class Frame(object):
         # BEGIN PROBLEM 3
         if symbol in self.bindings:
             return self.bindings[symbol]
-        elif self.parent is not None:
+        elif self.parent:
             return self.parent.lookup(symbol)
         # END PROBLEM 3
         raise SchemeError('unknown identifier: {0}'.format(symbol))
@@ -246,7 +249,7 @@ def do_quote_form(expressions, env):
 def do_begin_form(expressions, env):
     """Evaluate a begin form."""
     check_form(expressions, 1)
-    return eval_all(expressions, env)
+    return eval_all(expressions, env, True)
 
 def do_lambda_form(expressions, env):
     """Evaluate a lambda form."""
@@ -261,17 +264,20 @@ def do_if_form(expressions, env):
     """Evaluate an if form."""
     check_form(expressions, 2, 3)
     if scheme_truep(scheme_eval(expressions.first, env)):
-        return scheme_eval(expressions.second.first, env)
+        return scheme_eval(expressions.second.first, env, True)
     elif len(expressions) == 3:
-        return scheme_eval(expressions.second.second.first, env)
+        return scheme_eval(expressions.second.second.first, env, True)
 
 def do_and_form(expressions, env):
     """Evaluate a (short-circuited) and form."""
     # BEGIN PROBLEM 13
     check_form(expressions, 0)
     result = True
+    tail = False
     while expressions is not nil:
-        result = scheme_eval(expressions.first, env)
+        if expressions.second is nil:
+            tail = True
+        result = scheme_eval(expressions.first, env, tail)
         if scheme_falsep(result):
             return False
         expressions = expressions.second
@@ -283,12 +289,15 @@ def do_or_form(expressions, env):
     # BEGIN PROBLEM 13
     check_form(expressions, 0)
     result = False
+    tail = False
     while expressions is not nil:
-        result = scheme_eval(expressions.first, env)
+        if expressions.second is nil:
+            tail = True
+        result = scheme_eval(expressions.first, env, tail)
         if scheme_truep(result):
             return result
         expressions = expressions.second
-    return False
+    return result
     # END PROBLEM 13
 
 def do_cond_form(expressions, env):
@@ -304,8 +313,8 @@ def do_cond_form(expressions, env):
             test = scheme_eval(clause.first, env)
         if scheme_truep(test):
             # BEGIN PROBLEM 14
-            result = eval_all(clause.second, env)
-            if result is None:
+            result = eval_all(clause.second, env, True)
+            if clause.second is nil:
                 return test
             else:
                 return result
@@ -316,7 +325,7 @@ def do_let_form(expressions, env):
     """Evaluate a let form."""
     check_form(expressions, 2)
     let_env = make_let_frame(expressions.first, env)
-    return eval_all(expressions.second, let_env)
+    return eval_all(expressions.second, let_env, True)
 
 def make_let_frame(bindings, env):
     """Create a child frame of ENV that contains the definitions given in
@@ -541,7 +550,10 @@ def optimize_tail_calls(original_scheme_eval):
 
         result = Thunk(expr, env)
         # BEGIN
-        "*** YOUR CODE HERE ***"
+        result = original_scheme_eval(result.expr, result.env)
+        while isinstance(result, Thunk):
+            result = original_scheme_eval(result.expr, result.env)
+        return result
         # END
     return optimized_eval
 
@@ -553,7 +565,7 @@ def optimize_tail_calls(original_scheme_eval):
 ################################################################
 # Uncomment the following line to apply tail call optimization #
 ################################################################
-# scheme_eval = optimize_tail_calls(scheme_eval)
+scheme_eval = optimize_tail_calls(scheme_eval)
 
 
 
